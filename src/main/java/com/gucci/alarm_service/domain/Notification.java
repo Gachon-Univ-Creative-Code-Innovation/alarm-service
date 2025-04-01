@@ -32,7 +32,14 @@ public class Notification {
 
     private Long referenceId;
 
-    private boolean isRead = false;
+    private boolean isRead; // 기본값 false
 
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt;
+
+    @PrePersist
+    public void prePersist(){
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
+    }
 }
