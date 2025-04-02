@@ -27,7 +27,12 @@ public class NotificationService {
 
         Notification save = notificationRepository.save(notification);
 
-        return NotificationResponse.from(save);
+        NotificationResponse saved = NotificationResponse.from(save);
+
+        // 실시간 전송
+        sseEmitterManager.send(save.getReceiverId(), saved);
+
+        return saved;
     }
 
     public SseEmitter subscribe(Long userId) {
