@@ -3,6 +3,7 @@ package com.gucci.alarm_service.controller;
 import com.gucci.alarm_service.dto.NotificationRequest;
 import com.gucci.alarm_service.dto.NotificationResponse;
 import com.gucci.alarm_service.service.NotificationService;
+import com.gucci.common.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,8 +21,8 @@ public class NotificationController {
     }
 
     @PostMapping("/send")
-    public ResponseEntity<NotificationResponse> alarmCreate(@RequestBody NotificationRequest notificationRequest) {
+    public ApiResponse<NotificationResponse> alarmCreate(@RequestBody NotificationRequest notificationRequest) {
         NotificationResponse save = notificationService.save(notificationRequest);
-        return ResponseEntity.ok().body(save);
+        return ApiResponse.success(save);
     }
 }
