@@ -9,12 +9,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final SseEmitterManager sseEmitterManager;
 
+    // 알림 저장 및 전송
     public NotificationResponse save(NotificationRequest request){
         Notification notification = Notification.builder()
                 .receiverId(request.getReceiverId())
@@ -35,7 +39,17 @@ public class NotificationService {
         return saved;
     }
 
+    // SSE 연결
     public SseEmitter subscribe(Long userId) {
         return sseEmitterManager.connect(userId);
+    }
+
+    // 전체 알림 조회
+    public List<NotificationResponse> getAllAlarams(Long receiverId) {
+        List<Notification> notifications = notificationRepository.findByReceiverIdOrderByCreatedAtDesc(receiverId);
+
+        return notifications.stream()
+                .map(NotificationResponse::from)
+                .collect(Collectors.toList());
     }
 }
