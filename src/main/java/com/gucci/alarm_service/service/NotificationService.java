@@ -5,6 +5,9 @@ import com.gucci.alarm_service.domain.Notification;
 import com.gucci.alarm_service.dto.NotificationRequest;
 import com.gucci.alarm_service.dto.NotificationResponse;
 import com.gucci.alarm_service.repository.NotificationRepository;
+import com.gucci.common.exception.CustomException;
+import com.gucci.common.exception.ErrorCode;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -60,5 +63,13 @@ public class NotificationService {
         return unreadAlarams.stream()
                 .map(NotificationResponse::from)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void markRead(Long id) {
+        Notification notification = notificationRepository.findById(id)
+                .orElseThrow(() -> new CustomException(ErrorCode.INVALID_ARGUMENT));
+
+        notification.markAsRead();
     }
 }

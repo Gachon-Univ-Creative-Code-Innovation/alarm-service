@@ -7,7 +7,6 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
@@ -41,5 +40,9 @@ public class Notification {
         if (createdAt == null) {
             createdAt = LocalDateTime.now();
         }
+    }
+
+    public void markAsRead() {
+        this.isRead = true;
     }
 }

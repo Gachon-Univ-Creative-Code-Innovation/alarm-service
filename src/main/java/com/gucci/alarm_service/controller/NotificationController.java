@@ -46,4 +46,12 @@ public class NotificationController {
 
         return ApiResponse.success(unreadAlarms);
     }
+
+    // 알림 읽음 처리
+    @PatchMapping("/{id}/read")
+    public ApiResponse<Void> markRead(@PathVariable Long id) {
+        notificationService.markRead(id);
+
+        return ApiResponse.success();
+    }
 }
