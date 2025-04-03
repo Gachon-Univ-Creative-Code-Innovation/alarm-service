@@ -38,4 +38,12 @@ public class NotificationController {
         return ApiResponse.success(allAlarams);
     }
 
+    // 안 읽은 알림 조회
+    @GetMapping("/unread")
+    public ApiResponse<List<NotificationResponse>> unreadAlarmList(
+            @RequestHeader("X-USER-ID") Long receiverId) {
+        List<NotificationResponse> unreadAlarms = notificationService.getUnreadAlarms(receiverId);
+
+        return ApiResponse.success(unreadAlarms);
+    }
 }

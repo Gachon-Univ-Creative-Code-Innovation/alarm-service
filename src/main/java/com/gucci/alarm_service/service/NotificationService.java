@@ -52,4 +52,13 @@ public class NotificationService {
                 .map(NotificationResponse::from)
                 .collect(Collectors.toList());
     }
+
+    // 안 읽은 알림 조회
+    public List<NotificationResponse> getUnreadAlarms(Long receiverId) {
+        List<Notification> unreadAlarams = notificationRepository.findByReceiverIdAndIsReadFalseOrderByCreatedAtDesc(receiverId);
+
+        return unreadAlarams.stream()
+                .map(NotificationResponse::from)
+                .collect(Collectors.toList());
+    }
 }
