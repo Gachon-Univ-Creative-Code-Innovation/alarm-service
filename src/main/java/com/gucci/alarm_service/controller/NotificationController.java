@@ -1,15 +1,13 @@
 package com.gucci.alarm_service.controller;
 
-import com.gucci.alarm_service.domain.Notification;
 import com.gucci.alarm_service.dto.NotificationRequest;
 import com.gucci.alarm_service.dto.NotificationResponse;
 import com.gucci.alarm_service.service.NotificationService;
+import com.gucci.common.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @RestController
 @RequiredArgsConstructor
@@ -17,9 +15,14 @@ import org.springframework.web.bind.annotation.RestController;
 public class NotificationController {
     private final NotificationService notificationService;
 
+    @GetMapping( "/subscribe/{userId}")
+    public SseEmitter subscribe(@PathVariable Long userId) {
+        return notificationService.subscribe(userId);
+    }
+
     @PostMapping("/send")
-    public ResponseEntity<NotificationResponse> alarmCreate(@RequestBody NotificationRequest notificationRequest) {
+    public ApiResponse<NotificationResponse> alarmCreate(@RequestBody NotificationRequest notificationRequest) {
         NotificationResponse save = notificationService.save(notificationRequest);
-        return ResponseEntity.ok().body(save);
+        return ApiResponse.success(save);
     }
 }
