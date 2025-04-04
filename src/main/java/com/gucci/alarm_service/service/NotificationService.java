@@ -5,9 +5,15 @@ import com.gucci.alarm_service.domain.Notification;
 import com.gucci.alarm_service.dto.NotificationRequest;
 import com.gucci.alarm_service.dto.NotificationResponse;
 import com.gucci.alarm_service.repository.NotificationRepository;
+import com.gucci.common.exception.CustomException;
+import com.gucci.common.exception.ErrorCode;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -15,6 +21,7 @@ public class NotificationService {
     private final NotificationRepository notificationRepository;
     private final SseEmitterManager sseEmitterManager;
 
+    // 알림 저장 및 전송
     public NotificationResponse save(NotificationRequest request){
         Notification notification = Notification.builder()
                 .receiverId(request.getReceiverId())
@@ -35,7 +42,34 @@ public class NotificationService {
         return saved;
     }
 
+    // SSE 연결
     public SseEmitter subscribe(Long userId) {
         return sseEmitterManager.connect(userId);
+    }
+
+    // 전체 알림 조회
+    public List<NotificationResponse> getAllAlarams(Long receiverId) {
+        List<Notification> notifications = notificationRepository.findByReceiverIdOrderByCreatedAtDesc(receiverId);
+
+        return notifications.stream()
+                .map(NotificationResponse::from)
+                .collect(Collectors.toList());
+    }
+
+    // 안 읽은 알림 조회
+    public List<NotificationResponse> getUnreadAlarms(Long receiverId) {
+        List<Notification> unreadAlarams = notificationRepository.findByReceiverIdAndIsReadFalseOrderByCreatedAtDesc(receiverId);
+
+        return unreadAlarams.stream()
+                .map(NotificationResponse::from)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public void markRead(Long id) {
+        Notification notification = notificationRepository.findById(id)
+                .orElseThrow(() -> new CustomException(ErrorCode.INVALID_ARGUMENT));
+
+        notification.markAsRead();
     }
 }
