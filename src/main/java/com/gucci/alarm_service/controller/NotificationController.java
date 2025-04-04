@@ -4,6 +4,7 @@ import com.gucci.alarm_service.dto.NotificationRequest;
 import com.gucci.alarm_service.dto.NotificationResponse;
 import com.gucci.alarm_service.service.NotificationService;
 import com.gucci.common.response.ApiResponse;
+import com.gucci.common.response.SuccessCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -35,7 +36,7 @@ public class NotificationController {
             @RequestHeader("X-USER-ID") Long receiverId) { // 로그인된 사용자 ID라고 가정
         List<NotificationResponse> allAlarams = notificationService.getAllAlarams(receiverId);
 
-        return ApiResponse.success(allAlarams);
+        return ApiResponse.success(SuccessCode.DATA_FETCHED, allAlarams);
     }
 
     // 안 읽은 알림 조회
@@ -44,7 +45,7 @@ public class NotificationController {
             @RequestHeader("X-USER-ID") Long receiverId) {
         List<NotificationResponse> unreadAlarms = notificationService.getUnreadAlarms(receiverId);
 
-        return ApiResponse.success(unreadAlarms);
+        return ApiResponse.success(SuccessCode.DATA_FETCHED, unreadAlarms);
     }
 
     // 알림 읽음 처리
