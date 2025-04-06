@@ -2,6 +2,8 @@ package com.gucci.alarm_service.service;
 
 import com.gucci.alarm_service.common.SseEmitterManager;
 import com.gucci.alarm_service.domain.Notification;
+import com.gucci.alarm_service.domain.NotificationType;
+import com.gucci.alarm_service.dto.NotificationKafkaRequest;
 import com.gucci.alarm_service.dto.NotificationRequest;
 import com.gucci.alarm_service.dto.NotificationResponse;
 import com.gucci.alarm_service.repository.NotificationRepository;
@@ -65,11 +67,26 @@ public class NotificationService {
                 .collect(Collectors.toList());
     }
 
+    // 읽음 처리
     @Transactional
     public void markRead(Long id) {
         Notification notification = notificationRepository.findById(id)
                 .orElseThrow(() -> new CustomException(ErrorCode.INVALID_ARGUMENT));
 
         notification.markAsRead();
+    }
+
+    // 알림 생성
+    @Transactional
+    public void createNotification(NotificationKafkaRequest message) {
+        Notification notification = Notification.builder()
+                .receiverId(message.getReceiverId())
+                .senderId(message.getSenderId())
+                .type(NotificationType.valueOf(message.getType()))
+                .content(message.getContent())
+                .targetUrl(message.getTargetUrl())
+                .build();
+
+        notificationRepository.save(notification);
     }
 }
