@@ -1,5 +1,6 @@
 package com.gucci.alarm_service.common;
 
+import com.gucci.alarm_service.dto.NotificationResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -23,7 +24,7 @@ public class SseEmitterManager {
         return emitter;
     }
 
-    public void send(Long userId, Object data) {
+    public void send(Long userId, NotificationResponse data) {
         SseEmitter emitter = emitters.get(userId);
         if (emitter != null) {
             try {
