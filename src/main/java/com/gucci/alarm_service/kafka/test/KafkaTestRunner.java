@@ -7,7 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
-@Component
+// 카프카 전송 테스트용
+//@Component
 @RequiredArgsConstructor
 public class KafkaTestRunner implements CommandLineRunner {
 

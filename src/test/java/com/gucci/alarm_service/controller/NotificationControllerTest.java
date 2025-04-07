@@ -3,7 +3,8 @@ package com.gucci.alarm_service.controller;
 
 import com.gucci.alarm_service.domain.NotificationType;
 import com.gucci.alarm_service.dto.NotificationResponse;
-import com.gucci.alarm_service.service.NotificationService;
+import com.gucci.alarm_service.service.NotificationReadService;
+import com.gucci.alarm_service.service.NotificationWriteService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +29,10 @@ public class NotificationControllerTest {
     private MockMvc mockMvc;
 
     @MockBean
-    private NotificationService notificationService;
+    private NotificationWriteService notificationWriteService;
+
+    @MockBean
+    private NotificationReadService notificationReadService;
 
     @DisplayName("알림을 읽음 처리 할 수 있다.")
     @Test
@@ -97,7 +101,7 @@ public class NotificationControllerTest {
 
         List<NotificationResponse> mockUnreadAlarms = List.of(unreadNotice);
 
-        given(notificationService.getUnreadAlarms(receiverId)).willReturn(mockUnreadAlarms);
+        given(notificationReadService.getUnreadAlarms(receiverId)).willReturn(mockUnreadAlarms);
 
         // when & then
         mockMvc.perform(get("/api/alarm-service/notifications/unread")
