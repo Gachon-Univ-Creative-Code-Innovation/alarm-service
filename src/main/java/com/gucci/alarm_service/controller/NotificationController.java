@@ -59,4 +59,12 @@ public class NotificationController {
 
         return ApiResponse.success();
     }
+
+    // 전체 알림 읽음 처리
+    @PatchMapping("/read/all")
+    public ApiResponse<Void> markReadAll(@RequestHeader("X-USER-ID") Long receiverId) {
+        notificationWriteService.markReadAll(receiverId);
+
+        return ApiResponse.success();
+    }
 }
