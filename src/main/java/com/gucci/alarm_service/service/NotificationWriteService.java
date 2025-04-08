@@ -48,4 +48,10 @@ public class NotificationWriteService {
 
         notifications.forEach(Notification::markAsRead);
     }
+
+    // 전체 알림 삭제
+    @Transactional
+    public void deleteAll(Long receiverId) {
+        notificationRepository.deleteAllByReceiverId(receiverId);
+    }
 }

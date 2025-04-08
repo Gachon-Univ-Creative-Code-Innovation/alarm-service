@@ -67,4 +67,12 @@ public class NotificationController {
 
         return ApiResponse.success();
     }
+
+    // 전체 알림 삭제
+    @DeleteMapping
+    public ApiResponse<Void> deleteAllAlarms(@RequestHeader("X-USER-ID") Long receiverId) {
+        notificationWriteService.deleteAll(receiverId);
+
+        return ApiResponse.success();
+    }
 }
