@@ -2,7 +2,9 @@ package com.gucci.alarm_service.controller;
 
 import com.gucci.alarm_service.dto.NotificationRequest;
 import com.gucci.alarm_service.dto.NotificationResponse;
-import com.gucci.alarm_service.service.NotificationService;
+import com.gucci.alarm_service.service.NotificationEventHandler;
+import com.gucci.alarm_service.service.NotificationReadService;
+import com.gucci.alarm_service.service.NotificationWriteService;
 import com.gucci.common.response.ApiResponse;
 import com.gucci.common.response.SuccessCode;
 import lombok.RequiredArgsConstructor;
@@ -15,18 +17,20 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/api/alarm-service/notifications")
 public class NotificationController {
-    private final NotificationService notificationService;
+    private final NotificationWriteService notificationWriteService;
+    private final NotificationReadService notificationReadService;
+    private final NotificationEventHandler notificationEventHandler;
 
     // 알림 연결(구독)
     @GetMapping("/subscribe/{userId}")
     public SseEmitter subscribe(@PathVariable Long userId) {
-        return notificationService.subscribe(userId);
+        return notificationEventHandler.subscribe(userId);
     }
 
     // 알림 전송
     @PostMapping("/send")
     public ApiResponse<NotificationResponse> alarmCreate(@RequestBody NotificationRequest notificationRequest) {
-        NotificationResponse save = notificationService.save(notificationRequest);
+        NotificationResponse save = notificationWriteService.save(notificationRequest);
         return ApiResponse.success(save);
     }
 
@@ -34,16 +38,16 @@ public class NotificationController {
     @GetMapping
     public ApiResponse<List<NotificationResponse>> getAllAlarms(
             @RequestHeader("X-USER-ID") Long receiverId) { // 로그인된 사용자 ID라고 가정
-        List<NotificationResponse> allAlarams = notificationService.getAllAlarams(receiverId);
+        List<NotificationResponse> allAlarms = notificationReadService.getAllAlarms(receiverId);
 
-        return ApiResponse.success(SuccessCode.DATA_FETCHED, allAlarams);
+        return ApiResponse.success(SuccessCode.DATA_FETCHED, allAlarms);
     }
 
     // 안 읽은 알림 조회
     @GetMapping("/unread")
     public ApiResponse<List<NotificationResponse>> unreadAlarmList(
             @RequestHeader("X-USER-ID") Long receiverId) {
-        List<NotificationResponse> unreadAlarms = notificationService.getUnreadAlarms(receiverId);
+        List<NotificationResponse> unreadAlarms = notificationReadService.getUnreadAlarms(receiverId);
 
         return ApiResponse.success(SuccessCode.DATA_FETCHED, unreadAlarms);
     }
@@ -51,7 +55,7 @@ public class NotificationController {
     // 알림 읽음 처리
     @PatchMapping("/{id}/read")
     public ApiResponse<Void> markRead(@PathVariable Long id) {
-        notificationService.markRead(id);
+        notificationWriteService.markRead(id);
 
         return ApiResponse.success();
     }

@@ -32,6 +32,7 @@ dependencies {
 	testImplementation 'org.mockito:mockito-junit-jupiter'
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
 	implementation 'com.github.Gachon-Univ-Creative-Code-Innovation:alog-common:v1.0.1'
+	implementation 'org.springframework.kafka:spring-kafka'
 }
 
 tasks.named('test') {

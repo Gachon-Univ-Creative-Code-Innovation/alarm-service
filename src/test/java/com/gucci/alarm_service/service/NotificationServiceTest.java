@@ -27,7 +27,10 @@ public class NotificationServiceTest {
     private NotificationRepository notificationRepository;
 
     @InjectMocks
-    private NotificationService notificationService;
+    private NotificationWriteService notificationWriteService;
+
+    @InjectMocks
+    private NotificationReadService notificationReadService;
 
     @Test
     void 알림을_정상적으로_저장할_수_있다() {
@@ -54,7 +57,7 @@ public class NotificationServiceTest {
         Mockito.when(notificationRepository.save(Mockito.any(Notification.class))).thenReturn(expected);
 
         //when
-        NotificationResponse saved = notificationService.save(request);
+        NotificationResponse saved = notificationWriteService.save(request);
 
         //then
         assertThat(saved.getReceiverId()).isEqualTo(1L);
@@ -90,7 +93,7 @@ public class NotificationServiceTest {
                 .willReturn(List.of(unread));
 
         // when
-        List<NotificationResponse> result = notificationService.getUnreadAlarms(receiverId);
+        List<NotificationResponse> result = notificationReadService.getUnreadAlarms(receiverId);
 
         //then
         assertThat(result).hasSize(1);
@@ -117,7 +120,7 @@ public class NotificationServiceTest {
         given(notificationRepository.findById(notificationId)).willReturn(Optional.of(notification));
 
         // when
-        notificationService.markRead(notificationId);
+        notificationWriteService.markRead(notificationId);
 
         // then
         assertThat(notification.isRead()).isTrue();
