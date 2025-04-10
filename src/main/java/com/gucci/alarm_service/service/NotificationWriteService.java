@@ -10,6 +10,8 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 @RequiredArgsConstructor
 public class NotificationWriteService {
@@ -39,4 +41,17 @@ public class NotificationWriteService {
     }
 
 
+    // 전체 읽음 처리
+    @Transactional
+    public void markReadAll(Long receiverId) {
+        List<Notification> notifications = notificationRepository.findByReceiverIdAndIsReadFalse(receiverId);
+
+        notifications.forEach(Notification::markAsRead);
+    }
+
+    // 전체 알림 삭제
+    @Transactional
+    public void deleteAll(Long receiverId) {
+        notificationRepository.deleteAllByReceiverId(receiverId);
+    }
 }
