@@ -21,17 +21,24 @@ public class NotificationController {
     private final NotificationReadService notificationReadService;
     private final NotificationEventHandler notificationEventHandler;
 
-    // 알림 연결(구독)
+    // 알림 연결(구독) / 테스트용 (SSE 로직에 구현함)
     @GetMapping("/subscribe/{userId}")
     public SseEmitter subscribe(@PathVariable Long userId) {
         return notificationEventHandler.subscribe(userId);
     }
 
-    // 알림 전송
+    // 알림 전송 / 테스트용 (SSE 로직에 구현함)
     @PostMapping("/send")
     public ApiResponse<NotificationResponse> alarmCreate(@RequestBody NotificationRequest notificationRequest) {
         NotificationResponse save = notificationWriteService.save(notificationRequest);
         return ApiResponse.success(save);
+    }
+
+    // 읽지 않은 알림 여부 / 테스트용 (SSE 로직에 구현함)
+    @GetMapping("/unread/exists")
+    public ApiResponse<Boolean> unreadAlarmExist(@RequestHeader("X-USER-ID") Long receiverId) {
+        boolean hasUnread = notificationReadService.existUnreadAlarm(receiverId);
+        return ApiResponse.success(hasUnread);
     }
 
     // 전체 알림 조회
@@ -74,13 +81,6 @@ public class NotificationController {
         notificationWriteService.deleteAll(receiverId);
 
         return ApiResponse.success();
-    }
-
-    // 읽지 않은 알림 여부
-    @GetMapping("/unread/exists")
-    public ApiResponse<Boolean> unreadAlarmExist(@RequestHeader("X-USER-ID") Long receiverId) {
-        boolean hasUnread = notificationReadService.existUnreadAlarm(receiverId);
-        return ApiResponse.success(hasUnread);
     }
 
 }
