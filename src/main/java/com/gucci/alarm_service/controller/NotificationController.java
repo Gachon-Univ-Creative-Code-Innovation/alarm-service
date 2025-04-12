@@ -75,4 +75,12 @@ public class NotificationController {
 
         return ApiResponse.success();
     }
+
+    // 읽지 않은 알림 여부
+    @GetMapping("/unread/exists")
+    public ApiResponse<Boolean> unreadAlarmExist(@RequestHeader("X-USER-ID") Long receiverId) {
+        boolean hasUnread = notificationReadService.existUnreadAlarm(receiverId);
+        return ApiResponse.success(hasUnread);
+    }
+
 }

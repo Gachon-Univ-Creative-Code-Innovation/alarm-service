@@ -20,4 +20,6 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     int deleteByIsReadTrueAndCreatedAtBefore(LocalDateTime createdAtBefore);
 
     int deleteByIsReadFalseAndCreatedAtBefore(LocalDateTime createdAtBefore);
+
+    boolean existsByReceiverIdAndIsReadFalse(Long receiverId);
 }
