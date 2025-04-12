@@ -5,6 +5,7 @@ import com.gucci.alarm_service.domain.Notification;
 import com.gucci.alarm_service.domain.NotificationType;
 import com.gucci.alarm_service.dto.NotificationKafkaRequest;
 import com.gucci.alarm_service.dto.NotificationResponse;
+import com.gucci.alarm_service.dto.NotificationSseEventDTO;
 import com.gucci.alarm_service.repository.NotificationRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -29,9 +30,13 @@ public class NotificationEventHandler {
                 .build();
 
         Notification saved = notificationRepository.save(notification);
-        NotificationResponse response = NotificationResponse.from(saved);
+        NotificationResponse notificationResponse = NotificationResponse.from(saved);
 
-        sseEmitterManager.send(notification.getReceiverId(), response);
+        boolean hasUnread = notificationRepository.existsByReceiverIdAndIsReadFalse(message.getReceiverId());
+
+        NotificationSseEventDTO responseSSE = NotificationSseEventDTO.from(notificationResponse, hasUnread);
+
+        sseEmitterManager.send(notification.getReceiverId(), responseSSE);
     }
 
     public SseEmitter subscribe(Long userId) {
