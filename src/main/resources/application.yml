@@ -23,3 +23,6 @@ spring:
     topic:
       notification: alarm-topic
 
+
+jwt:
+  secret: ${JWT_SECRET}
