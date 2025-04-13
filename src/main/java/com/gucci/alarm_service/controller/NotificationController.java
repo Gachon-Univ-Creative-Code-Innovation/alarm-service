@@ -8,6 +8,7 @@ import com.gucci.alarm_service.service.NotificationWriteService;
 import com.gucci.common.response.ApiResponse;
 import com.gucci.common.response.SuccessCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -20,6 +21,13 @@ public class NotificationController {
     private final NotificationWriteService notificationWriteService;
     private final NotificationReadService notificationReadService;
     private final NotificationEventHandler notificationEventHandler;
+
+    // 유저 정보 추출 테스트
+    @GetMapping("/check")
+    public ApiResponse<String> test(Authentication authentication) {
+        Long userId = (Long) authentication.getPrincipal();
+        return ApiResponse.success("User Id " + userId);
+    }
 
     // 알림 연결(구독) / 테스트용 (SSE 로직에 구현함)
     @GetMapping("/subscribe/{userId}")
