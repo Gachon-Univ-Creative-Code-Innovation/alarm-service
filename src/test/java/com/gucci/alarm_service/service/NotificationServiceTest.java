@@ -20,6 +20,8 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class NotificationServiceTest {
@@ -54,15 +56,15 @@ public class NotificationServiceTest {
                 .build();
 
 
-        Mockito.when(notificationRepository.save(Mockito.any(Notification.class))).thenReturn(expected);
+        when(notificationRepository.save(Mockito.any(Notification.class))).thenReturn(expected);
 
         //when
         NotificationResponse saved = notificationWriteService.save(request);
 
         //then
-        assertThat(saved.getReceiverId()).isEqualTo(1L);
-        assertThat(saved.getType()).isEqualTo(NotificationType.COMMENT);
-        assertThat(saved.getContent()).isEqualTo("댓글이 달렸습니다.");
+        assertThat(saved.getReceiverId()).isEqualTo(expected.getReceiverId());
+        assertThat(saved.getType()).isEqualTo(expected.getType());
+        assertThat(saved.getContent()).isEqualTo(expected.getContent());
     }
 
     @DisplayName("안 읽은 알림만 필터링해서 반환")
@@ -126,5 +128,35 @@ public class NotificationServiceTest {
         assertThat(notification.isRead()).isTrue();
         then(notificationRepository).should().findById(notificationId);
 
+    }
+
+    @Test
+    @DisplayName("읽지 않은 알림이 존재할 때 true를 반환한다")
+    void 읽지_않은_알림_존재_true_반환(){
+        // given
+        Long userId = 1L;
+        when(notificationRepository.existsByReceiverIdAndIsReadFalse(userId)).thenReturn(true);
+
+        //when
+        boolean result = notificationReadService.existUnreadAlarm(userId);
+
+        //then
+        assertThat(result).isTrue();
+        verify(notificationRepository).existsByReceiverIdAndIsReadFalse(userId);
+    }
+
+    @Test
+    @DisplayName("읽지 않은 알림이 존재하지 않을 때 false를 반환한다")
+    void 읽지_않은_알림_존재하지_않으면_false_반환(){
+        // given
+        Long userId = 1L;
+        when(notificationRepository.existsByReceiverIdAndIsReadFalse(userId)).thenReturn(false);
+
+        //when
+        boolean result = notificationReadService.existUnreadAlarm(userId);
+
+        //then
+        assertThat(result).isFalse();
+        verify(notificationRepository).existsByReceiverIdAndIsReadFalse(userId);
     }
 }

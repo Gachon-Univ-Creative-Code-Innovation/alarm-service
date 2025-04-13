@@ -33,6 +33,7 @@ dependencies {
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
 	implementation 'com.github.Gachon-Univ-Creative-Code-Innovation:alog-common:v1.0.1'
 	implementation 'org.springframework.kafka:spring-kafka'
+	runtimeOnly 'com.h2database:h2'
 }
 
 tasks.named('test') {
