@@ -10,12 +10,14 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
 @SpringBootTest
+@ActiveProfiles("test")
 public class SchedulerIntegrationTest {
 
     @Autowired
@@ -31,7 +33,7 @@ public class SchedulerIntegrationTest {
 
     @DisplayName("스케줄러가 오래된 알림을 삭제한다")
     @Test
-    @Transactional(propagation = Propagation.NOT_SUPPORTED)
+    @Transactional
     void 스케줄러_알림_삭제_테스트() {
         // given
         Notification oldRead = Notification.builder()

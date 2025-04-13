@@ -29,4 +29,8 @@ public class NotificationReadService {
                 .collect(Collectors.toList());
     }
 
+    // 안 읽은 메시지 여부
+    public boolean existUnreadAlarm(Long receiverId) {
+        return notificationRepository.existsByReceiverIdAndIsReadFalse(receiverId);
+    }
 }

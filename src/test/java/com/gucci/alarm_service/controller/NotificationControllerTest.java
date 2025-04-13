@@ -3,6 +3,7 @@ package com.gucci.alarm_service.controller;
 
 import com.gucci.alarm_service.domain.NotificationType;
 import com.gucci.alarm_service.dto.NotificationResponse;
+import com.gucci.alarm_service.service.NotificationEventHandler;
 import com.gucci.alarm_service.service.NotificationReadService;
 import com.gucci.alarm_service.service.NotificationWriteService;
 import org.junit.jupiter.api.DisplayName;
@@ -10,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
@@ -24,9 +26,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @DisplayName("알림 읽음 처리 테스트")
 @WebMvcTest(NotificationController.class)
+@ActiveProfiles("test")
 public class NotificationControllerTest {
     @Autowired
     private MockMvc mockMvc;
+
+    @MockBean
+    private NotificationEventHandler notificationEventHandler;
 
     @MockBean
     private NotificationWriteService notificationWriteService;

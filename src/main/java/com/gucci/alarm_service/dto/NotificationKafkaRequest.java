@@ -3,7 +3,6 @@ package com.gucci.alarm_service.dto;
 import lombok.*;
 
 @Getter
-@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder

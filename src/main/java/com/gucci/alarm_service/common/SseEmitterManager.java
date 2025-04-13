@@ -1,6 +1,7 @@
 package com.gucci.alarm_service.common;
 
-import com.gucci.alarm_service.dto.NotificationResponse;
+import com.gucci.alarm_service.dto.NotificationSseEventDTO;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -9,6 +10,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Component
+@Slf4j
 public class SseEmitterManager {
 
     private final Map<Long, SseEmitter> emitters = new ConcurrentHashMap<>();
@@ -24,7 +26,7 @@ public class SseEmitterManager {
         return emitter;
     }
 
-    public void send(Long userId, NotificationResponse data) {
+    public void send(Long userId, NotificationSseEventDTO data) {
         SseEmitter emitter = emitters.get(userId);
         if (emitter != null) {
             try {
@@ -33,6 +35,7 @@ public class SseEmitterManager {
                         .data(data));
             } catch (IOException e) {
                 emitters.remove(userId);
+                log.warn("SSE 전송 실패, userId: {}", userId, e);
             }
         }
     }
