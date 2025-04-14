@@ -44,7 +44,8 @@ public class NotificationController {
 
     // 읽지 않은 알림 여부 / 테스트용 (SSE 로직에 구현함)
     @GetMapping("/unread/exists")
-    public ApiResponse<Boolean> unreadAlarmExist(@RequestHeader("X-USER-ID") Long receiverId) {
+    public ApiResponse<Boolean> unreadAlarmExist(Authentication authentication) {
+        Long receiverId = (Long) authentication.getPrincipal();
         boolean hasUnread = notificationReadService.existUnreadAlarm(receiverId);
         return ApiResponse.success(hasUnread);
     }
@@ -52,7 +53,8 @@ public class NotificationController {
     // 전체 알림 조회
     @GetMapping
     public ApiResponse<List<NotificationResponse>> getAllAlarms(
-            @RequestHeader("X-USER-ID") Long receiverId) { // 로그인된 사용자 ID라고 가정
+            Authentication authentication) {
+        Long receiverId = (Long) authentication.getPrincipal();
         List<NotificationResponse> allAlarms = notificationReadService.getAllAlarms(receiverId);
 
         return ApiResponse.success(SuccessCode.DATA_FETCHED, allAlarms);
@@ -61,7 +63,8 @@ public class NotificationController {
     // 안 읽은 알림 조회
     @GetMapping("/unread")
     public ApiResponse<List<NotificationResponse>> unreadAlarmList(
-            @RequestHeader("X-USER-ID") Long receiverId) {
+            Authentication authentication) {
+        Long receiverId = (Long) authentication.getPrincipal();
         List<NotificationResponse> unreadAlarms = notificationReadService.getUnreadAlarms(receiverId);
 
         return ApiResponse.success(SuccessCode.DATA_FETCHED, unreadAlarms);
@@ -77,7 +80,8 @@ public class NotificationController {
 
     // 전체 알림 읽음 처리
     @PatchMapping("/read/all")
-    public ApiResponse<Void> markReadAll(@RequestHeader("X-USER-ID") Long receiverId) {
+    public ApiResponse<Void> markReadAll(Authentication authentication) {
+        Long receiverId = (Long) authentication.getPrincipal();
         notificationWriteService.markReadAll(receiverId);
 
         return ApiResponse.success();
@@ -85,7 +89,8 @@ public class NotificationController {
 
     // 전체 알림 삭제
     @DeleteMapping
-    public ApiResponse<Void> deleteAllAlarms(@RequestHeader("X-USER-ID") Long receiverId) {
+    public ApiResponse<Void> deleteAllAlarms(Authentication authentication) {
+        Long receiverId = (Long) authentication.getPrincipal();
         notificationWriteService.deleteAll(receiverId);
 
         return ApiResponse.success();
