@@ -2,12 +2,14 @@ package com.gucci.alarm_service.controller;
 
 import com.gucci.alarm_service.dto.NotificationRequest;
 import com.gucci.alarm_service.dto.NotificationResponse;
+import com.gucci.alarm_service.service.AuthServiceHelper;
 import com.gucci.alarm_service.service.NotificationEventHandler;
 import com.gucci.alarm_service.service.NotificationReadService;
 import com.gucci.alarm_service.service.NotificationWriteService;
 import com.gucci.common.response.ApiResponse;
 import com.gucci.common.response.SuccessCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -20,6 +22,14 @@ public class NotificationController {
     private final NotificationWriteService notificationWriteService;
     private final NotificationReadService notificationReadService;
     private final NotificationEventHandler notificationEventHandler;
+    private final AuthServiceHelper authServiceHelper;
+
+    // 유저 정보 추출 테스트
+    @GetMapping("/check")
+    public ApiResponse<String> test(Authentication authentication) {
+        Long userId = authServiceHelper.getCurrentUserId(authentication);
+        return ApiResponse.success("User Id " + userId);
+    }
 
     // 알림 연결(구독) / 테스트용 (SSE 로직에 구현함)
     @GetMapping("/subscribe/{userId}")
@@ -36,7 +46,8 @@ public class NotificationController {
 
     // 읽지 않은 알림 여부 / 테스트용 (SSE 로직에 구현함)
     @GetMapping("/unread/exists")
-    public ApiResponse<Boolean> unreadAlarmExist(@RequestHeader("X-USER-ID") Long receiverId) {
+    public ApiResponse<Boolean> unreadAlarmExist(Authentication authentication) {
+        Long receiverId = authServiceHelper.getCurrentUserId(authentication);
         boolean hasUnread = notificationReadService.existUnreadAlarm(receiverId);
         return ApiResponse.success(hasUnread);
     }
@@ -44,7 +55,8 @@ public class NotificationController {
     // 전체 알림 조회
     @GetMapping
     public ApiResponse<List<NotificationResponse>> getAllAlarms(
-            @RequestHeader("X-USER-ID") Long receiverId) { // 로그인된 사용자 ID라고 가정
+            Authentication authentication) {
+        Long receiverId = authServiceHelper.getCurrentUserId(authentication);
         List<NotificationResponse> allAlarms = notificationReadService.getAllAlarms(receiverId);
 
         return ApiResponse.success(SuccessCode.DATA_FETCHED, allAlarms);
@@ -53,7 +65,8 @@ public class NotificationController {
     // 안 읽은 알림 조회
     @GetMapping("/unread")
     public ApiResponse<List<NotificationResponse>> unreadAlarmList(
-            @RequestHeader("X-USER-ID") Long receiverId) {
+            Authentication authentication) {
+        Long receiverId = authServiceHelper.getCurrentUserId(authentication);
         List<NotificationResponse> unreadAlarms = notificationReadService.getUnreadAlarms(receiverId);
 
         return ApiResponse.success(SuccessCode.DATA_FETCHED, unreadAlarms);
@@ -69,7 +82,8 @@ public class NotificationController {
 
     // 전체 알림 읽음 처리
     @PatchMapping("/read/all")
-    public ApiResponse<Void> markReadAll(@RequestHeader("X-USER-ID") Long receiverId) {
+    public ApiResponse<Void> markReadAll(Authentication authentication) {
+        Long receiverId = authServiceHelper.getCurrentUserId(authentication);
         notificationWriteService.markReadAll(receiverId);
 
         return ApiResponse.success();
@@ -77,7 +91,8 @@ public class NotificationController {
 
     // 전체 알림 삭제
     @DeleteMapping
-    public ApiResponse<Void> deleteAllAlarms(@RequestHeader("X-USER-ID") Long receiverId) {
+    public ApiResponse<Void> deleteAllAlarms(Authentication authentication) {
+        Long receiverId = authServiceHelper.getCurrentUserId(authentication);
         notificationWriteService.deleteAll(receiverId);
 
         return ApiResponse.success();

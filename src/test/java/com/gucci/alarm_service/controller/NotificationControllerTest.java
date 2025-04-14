@@ -1,31 +1,44 @@
 package com.gucci.alarm_service.controller;
 
 
+import com.gucci.alarm_service.auth.JwtUserAuthentication;
 import com.gucci.alarm_service.domain.NotificationType;
 import com.gucci.alarm_service.dto.NotificationResponse;
+import com.gucci.alarm_service.service.AuthServiceHelper;
 import com.gucci.alarm_service.service.NotificationEventHandler;
 import com.gucci.alarm_service.service.NotificationReadService;
 import com.gucci.alarm_service.service.NotificationWriteService;
+import com.gucci.common.exception.ErrorCode;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.mock;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
 
-@DisplayName("알림 읽음 처리 테스트")
+@DisplayName("알림 컨트롤러 테스트")
 @WebMvcTest(NotificationController.class)
+@AutoConfigureMockMvc(addFilters = false)
 @ActiveProfiles("test")
 public class NotificationControllerTest {
     @Autowired
@@ -39,6 +52,23 @@ public class NotificationControllerTest {
 
     @MockBean
     private NotificationReadService notificationReadService;
+
+    @MockBean
+    private AuthServiceHelper authServiceHelper;
+
+    private static final Long MOCK_USER_ID = 1L;
+
+//    @BeforeEach
+//    void setUpSecurityContext() {
+//        JwtUserAuthentication authentication = new JwtUserAuthentication(MOCK_USER_ID);
+//        SecurityContextHolder.getContext().setAuthentication(authentication);
+//    }
+//
+//    @AfterEach
+//    void clearSecurityContext() {
+//        SecurityContextHolder.clearContext();
+//    }
+
 
     @DisplayName("알림을 읽음 처리 할 수 있다.")
     @Test
@@ -107,11 +137,14 @@ public class NotificationControllerTest {
 
         List<NotificationResponse> mockUnreadAlarms = List.of(unreadNotice);
 
+
+        ArgumentCaptor<Authentication> captor = ArgumentCaptor.forClass(Authentication.class);
+
+        given(authServiceHelper.getCurrentUserId(captor.capture())).willReturn(receiverId);
         given(notificationReadService.getUnreadAlarms(receiverId)).willReturn(mockUnreadAlarms);
 
         // when & then
-        mockMvc.perform(get("/api/alarm-service/notifications/unread")
-                        .header("X-USER-ID", receiverId))
+        mockMvc.perform(get("/api/alarm-service/notifications/unread"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("OK"))
                 .andExpect(jsonPath("$.message").value("데이터 조회에 성공했습니다."))
