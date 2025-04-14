@@ -2,6 +2,7 @@ package com.gucci.alarm_service.controller;
 
 import com.gucci.alarm_service.dto.NotificationRequest;
 import com.gucci.alarm_service.dto.NotificationResponse;
+import com.gucci.alarm_service.service.AuthServiceHelper;
 import com.gucci.alarm_service.service.NotificationEventHandler;
 import com.gucci.alarm_service.service.NotificationReadService;
 import com.gucci.alarm_service.service.NotificationWriteService;
@@ -21,11 +22,12 @@ public class NotificationController {
     private final NotificationWriteService notificationWriteService;
     private final NotificationReadService notificationReadService;
     private final NotificationEventHandler notificationEventHandler;
+    private final AuthServiceHelper authServiceHelper;
 
     // 유저 정보 추출 테스트
     @GetMapping("/check")
     public ApiResponse<String> test(Authentication authentication) {
-        Long userId = (Long) authentication.getPrincipal();
+        Long userId = authServiceHelper.getCurrentUserId(authentication);
         return ApiResponse.success("User Id " + userId);
     }
 
@@ -45,7 +47,7 @@ public class NotificationController {
     // 읽지 않은 알림 여부 / 테스트용 (SSE 로직에 구현함)
     @GetMapping("/unread/exists")
     public ApiResponse<Boolean> unreadAlarmExist(Authentication authentication) {
-        Long receiverId = (Long) authentication.getPrincipal();
+        Long receiverId = authServiceHelper.getCurrentUserId(authentication);
         boolean hasUnread = notificationReadService.existUnreadAlarm(receiverId);
         return ApiResponse.success(hasUnread);
     }
@@ -54,7 +56,7 @@ public class NotificationController {
     @GetMapping
     public ApiResponse<List<NotificationResponse>> getAllAlarms(
             Authentication authentication) {
-        Long receiverId = (Long) authentication.getPrincipal();
+        Long receiverId = authServiceHelper.getCurrentUserId(authentication);
         List<NotificationResponse> allAlarms = notificationReadService.getAllAlarms(receiverId);
 
         return ApiResponse.success(SuccessCode.DATA_FETCHED, allAlarms);
@@ -64,7 +66,7 @@ public class NotificationController {
     @GetMapping("/unread")
     public ApiResponse<List<NotificationResponse>> unreadAlarmList(
             Authentication authentication) {
-        Long receiverId = (Long) authentication.getPrincipal();
+        Long receiverId = authServiceHelper.getCurrentUserId(authentication);
         List<NotificationResponse> unreadAlarms = notificationReadService.getUnreadAlarms(receiverId);
 
         return ApiResponse.success(SuccessCode.DATA_FETCHED, unreadAlarms);
@@ -81,7 +83,7 @@ public class NotificationController {
     // 전체 알림 읽음 처리
     @PatchMapping("/read/all")
     public ApiResponse<Void> markReadAll(Authentication authentication) {
-        Long receiverId = (Long) authentication.getPrincipal();
+        Long receiverId = authServiceHelper.getCurrentUserId(authentication);
         notificationWriteService.markReadAll(receiverId);
 
         return ApiResponse.success();
@@ -90,7 +92,7 @@ public class NotificationController {
     // 전체 알림 삭제
     @DeleteMapping
     public ApiResponse<Void> deleteAllAlarms(Authentication authentication) {
-        Long receiverId = (Long) authentication.getPrincipal();
+        Long receiverId = authServiceHelper.getCurrentUserId(authentication);
         notificationWriteService.deleteAll(receiverId);
 
         return ApiResponse.success();
