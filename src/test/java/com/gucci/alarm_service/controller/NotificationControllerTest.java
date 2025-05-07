@@ -18,6 +18,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
@@ -123,6 +127,9 @@ public class NotificationControllerTest {
     void 안읽은_알림_조회_성공() throws Exception {
         // given
         Long receiverId = 1L;
+        int page = 0;
+        int size = 20;
+
 
         NotificationResponse unreadNotice = NotificationResponse.builder()
                 .id(1L)
@@ -135,23 +142,26 @@ public class NotificationControllerTest {
                 .createdAt(LocalDateTime.now())
                 .build();
 
+        Pageable pageable = PageRequest.of(page, size);
+
         List<NotificationResponse> mockUnreadAlarms = List.of(unreadNotice);
+        Page<NotificationResponse> mockPage = new PageImpl<>(mockUnreadAlarms, pageable, mockUnreadAlarms.size());
 
 
         ArgumentCaptor<Authentication> captor = ArgumentCaptor.forClass(Authentication.class);
 
         given(authServiceHelper.getCurrentUserId(captor.capture())).willReturn(receiverId);
-        given(notificationReadService.getUnreadAlarms(receiverId)).willReturn(mockUnreadAlarms);
+        given(notificationReadService.getUnreadAlarms(receiverId, page, size)).willReturn(mockPage);
 
         // when & then
         mockMvc.perform(get("/api/alarm-service/notifications/unread"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("OK"))
                 .andExpect(jsonPath("$.message").value("데이터 조회에 성공했습니다."))
-                .andExpect(jsonPath("$.data").isArray())
-                .andExpect(jsonPath("$.data.length()").value(1))
-                .andExpect(jsonPath("$.data[0].id").value(unreadNotice.getId()))
-                .andExpect(jsonPath("$.data[0].read").value(false))
+                .andExpect(jsonPath("$.data.content").isArray())
+                .andExpect(jsonPath("$.data.content.length()").value(1))
+                .andExpect(jsonPath("$.data.content[0].id").value(unreadNotice.getId()))
+                .andExpect(jsonPath("$.data.content[0].read").value(false))
                 .andDo(print());
 
     }
