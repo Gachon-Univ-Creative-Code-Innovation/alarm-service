@@ -1,5 +1,6 @@
 package com.gucci.alarm_service.service;
 
+import com.gucci.alarm_service.domain.Notification;
 import com.gucci.alarm_service.dto.NotificationResponse;
 import com.gucci.alarm_service.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,14 @@ public class NotificationReadService {
     // 안 읽은 알람 조회
     public List<NotificationResponse> getUnreadAlarms(Long receiverId) {
         return notificationRepository.findByReceiverIdAndIsReadFalseOrderByCreatedAtDesc(receiverId)
+                .stream()
+                .map(NotificationResponse::from)
+                .collect(Collectors.toList());
+    }
+
+    // 읽은 알람 조회
+    public List<NotificationResponse> getReadAlarms(Long receiverId) {
+        return notificationRepository.findByReceiverIdAndIsReadTrueOrderByCreatedAtDesc(receiverId)
                 .stream()
                 .map(NotificationResponse::from)
                 .collect(Collectors.toList());

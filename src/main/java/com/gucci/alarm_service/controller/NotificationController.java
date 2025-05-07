@@ -72,6 +72,16 @@ public class NotificationController {
         return ApiResponse.success(SuccessCode.DATA_FETCHED, unreadAlarms);
     }
 
+    // 읽은 알림 조회
+    @GetMapping("/read")
+    public ApiResponse<List<NotificationResponse>> readAlarmList(
+            Authentication authentication) {
+        Long receiverId = authServiceHelper.getCurrentUserId(authentication);
+        List<NotificationResponse> readAlarms = notificationReadService.getReadAlarms(receiverId);
+
+        return ApiResponse.success(SuccessCode.DATA_FETCHED, readAlarms);
+    }
+
     // 알림 읽음 처리
     @PatchMapping("/{id}/read")
     public ApiResponse<Void> markRead(@PathVariable Long id) {

@@ -13,6 +13,8 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
     List<Notification> findByReceiverIdAndIsReadFalseOrderByCreatedAtDesc(Long receiverId);
 
+    List<Notification> findByReceiverIdAndIsReadTrueOrderByCreatedAtDesc(Long receiverId);
+
     List<Notification> findByReceiverIdAndIsReadFalse(Long receiverId);
 
     void deleteAllByReceiverId(Long receiverId);
@@ -24,4 +26,5 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
     boolean existsByReceiverIdAndIsReadFalse(Long receiverId);
 
     List<Notification> findByReceiverId(Long receiverId);
+
 }
