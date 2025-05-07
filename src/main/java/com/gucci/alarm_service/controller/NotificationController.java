@@ -9,6 +9,7 @@ import com.gucci.alarm_service.service.NotificationWriteService;
 import com.gucci.common.response.ApiResponse;
 import com.gucci.common.response.SuccessCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -54,30 +55,33 @@ public class NotificationController {
 
     // 전체 알림 조회
     @GetMapping
-    public ApiResponse<List<NotificationResponse>> getAllAlarms(
-            Authentication authentication) {
+    public ApiResponse<Page<NotificationResponse>> getAllAlarms(Authentication authentication,
+                                                                @RequestParam(defaultValue = "0") int page,
+                                                                @RequestParam(defaultValue = "20") int size) {
         Long receiverId = authServiceHelper.getCurrentUserId(authentication);
-        List<NotificationResponse> allAlarms = notificationReadService.getAllAlarms(receiverId);
+        Page<NotificationResponse> allAlarms = notificationReadService.getAllAlarms(receiverId, page, size);
 
         return ApiResponse.success(SuccessCode.DATA_FETCHED, allAlarms);
     }
 
     // 안 읽은 알림 조회
     @GetMapping("/unread")
-    public ApiResponse<List<NotificationResponse>> unreadAlarmList(
-            Authentication authentication) {
+    public ApiResponse<Page<NotificationResponse>> unreadAlarmList(Authentication authentication,
+                                                                   @RequestParam(defaultValue = "0") int page,
+                                                                   @RequestParam(defaultValue = "20") int size) {
         Long receiverId = authServiceHelper.getCurrentUserId(authentication);
-        List<NotificationResponse> unreadAlarms = notificationReadService.getUnreadAlarms(receiverId);
+        Page<NotificationResponse> unreadAlarms = notificationReadService.getUnreadAlarms(receiverId, page, size);
 
         return ApiResponse.success(SuccessCode.DATA_FETCHED, unreadAlarms);
     }
 
     // 읽은 알림 조회
     @GetMapping("/read")
-    public ApiResponse<List<NotificationResponse>> readAlarmList(
-            Authentication authentication) {
+    public ApiResponse<Page<NotificationResponse>> readAlarmList(Authentication authentication,
+                                                                 @RequestParam(defaultValue = "0") int page,
+                                                                 @RequestParam(defaultValue = "20") int size) {
         Long receiverId = authServiceHelper.getCurrentUserId(authentication);
-        List<NotificationResponse> readAlarms = notificationReadService.getReadAlarms(receiverId);
+        Page<NotificationResponse> readAlarms = notificationReadService.getReadAlarms(receiverId, page, size);
 
         return ApiResponse.success(SuccessCode.DATA_FETCHED, readAlarms);
     }
