@@ -1,5 +1,6 @@
 package com.gucci.alarm_service.controller;
 
+import com.gucci.alarm_service.auth.JwtProvider;
 import com.gucci.alarm_service.dto.NotificationRequest;
 import com.gucci.alarm_service.dto.NotificationResponse;
 import com.gucci.alarm_service.service.AuthServiceHelper;
@@ -24,6 +25,7 @@ public class NotificationController {
     private final NotificationReadService notificationReadService;
     private final NotificationEventHandler notificationEventHandler;
     private final AuthServiceHelper authServiceHelper;
+    private final JwtProvider jwtProvider;
 
     // 유저 정보 추출 테스트
     @GetMapping("/check")
@@ -32,9 +34,10 @@ public class NotificationController {
         return ApiResponse.success("User Id " + userId);
     }
 
-    // 알림 연결(구독) / 테스트용 (SSE 로직에 구현함)
-    @GetMapping("/subscribe/{userId}")
-    public SseEmitter subscribe(@PathVariable Long userId) {
+    // SSE 알림 연결
+    @GetMapping("/subscribe")
+    public SseEmitter subscribe(@RequestParam("token") String token) {
+        Long userId = jwtProvider.getUserId(token);
         return notificationEventHandler.subscribe(userId);
     }
 

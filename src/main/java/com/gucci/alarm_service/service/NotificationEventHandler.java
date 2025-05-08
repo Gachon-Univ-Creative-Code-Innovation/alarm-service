@@ -32,6 +32,7 @@ public class NotificationEventHandler {
         Notification saved = notificationRepository.save(notification);
         NotificationResponse notificationResponse = NotificationResponse.from(saved);
 
+        // 읽지 않은 알림 여부
         boolean hasUnread = notificationRepository.existsByReceiverIdAndIsReadFalse(message.getReceiverId());
 
         NotificationSseEventDTO responseSSE = NotificationSseEventDTO.from(notificationResponse, hasUnread);
