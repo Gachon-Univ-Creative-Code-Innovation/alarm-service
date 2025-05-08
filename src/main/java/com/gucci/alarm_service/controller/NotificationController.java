@@ -112,4 +112,13 @@ public class NotificationController {
         return ApiResponse.success();
     }
 
+    // 특정 알림 삭제
+    @DeleteMapping("{id}")
+    public ApiResponse<Void> deleteAlarm(Authentication authentication,
+                                         @PathVariable Long id) {
+        Long userId = authServiceHelper.getCurrentUserId(authentication);
+        notificationWriteService.deleteAlarm(userId, id);
+        return ApiResponse.success();
+    }
+
 }

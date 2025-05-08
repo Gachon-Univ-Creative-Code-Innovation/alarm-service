@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -53,5 +54,18 @@ public class NotificationWriteService {
     @Transactional
     public void deleteAll(Long receiverId) {
         notificationRepository.deleteAllByReceiverId(receiverId);
+    }
+
+    @Transactional
+    public void deleteAlarm(Long userId, Long notificationId) {
+
+        Notification notification = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new CustomException(ErrorCode.NOT_FOUND));
+
+        if (!notification.getReceiverId().equals(userId)) {
+            throw new CustomException(ErrorCode.FORBIDDEN);
+        }
+
+        notificationRepository.deleteByReceiverIdAndId(userId, notificationId);
     }
 }

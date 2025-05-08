@@ -34,4 +34,5 @@ public interface NotificationRepository extends JpaRepository<Notification, Long
 
     Page<Notification> findByReceiverIdAndIsReadTrue(Long receiverId, Pageable pageable);
 
+    void deleteByReceiverIdAndId(Long receiverId, Long id);
 }
