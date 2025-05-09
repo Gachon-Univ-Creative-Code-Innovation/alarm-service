@@ -41,6 +41,11 @@ public class NotificationEventHandler {
     }
 
     public SseEmitter subscribe(Long userId) {
-        return sseEmitterManager.connect(userId);
+        SseEmitter emitter = sseEmitterManager.connect(userId);
+
+        boolean isExistAlarm = notificationRepository.existsByReceiverIdAndIsReadFalse(userId);
+        NotificationSseEventDTO initialExistAlarm = NotificationSseEventDTO.initialState(isExistAlarm);
+        sseEmitterManager.send(userId, initialExistAlarm);
+        return emitter;
     }
 }
