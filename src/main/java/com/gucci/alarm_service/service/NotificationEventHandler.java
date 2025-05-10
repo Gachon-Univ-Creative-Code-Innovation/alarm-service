@@ -44,8 +44,14 @@ public class NotificationEventHandler {
         SseEmitter emitter = sseEmitterManager.connect(userId);
 
         boolean isExistAlarm = notificationRepository.existsByReceiverIdAndIsReadFalse(userId);
-        NotificationSseEventDTO initialExistAlarm = NotificationSseEventDTO.initialState(isExistAlarm);
+        NotificationSseEventDTO initialExistAlarm = NotificationSseEventDTO.unreadStatus(isExistAlarm);
         sseEmitterManager.send(userId, initialExistAlarm);
         return emitter;
+    }
+
+    public void notifyUnreadStatus(Long userId) {
+        boolean isExistAlarm = notificationRepository.existsByReceiverIdAndIsReadFalse(userId);
+        NotificationSseEventDTO hasUnread = NotificationSseEventDTO.unreadStatus(isExistAlarm);
+        sseEmitterManager.send(userId, hasUnread);
     }
 }

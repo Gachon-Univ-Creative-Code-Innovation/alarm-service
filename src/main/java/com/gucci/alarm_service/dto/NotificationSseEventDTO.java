@@ -17,7 +17,7 @@ public class NotificationSseEventDTO {
                 .build();
     }
 
-    public static NotificationSseEventDTO initialState(boolean ixExistAlarm) {
+    public static NotificationSseEventDTO unreadStatus(boolean ixExistAlarm) {
         return NotificationSseEventDTO.builder()
                 .isExistAlarm(ixExistAlarm)
                 .build();

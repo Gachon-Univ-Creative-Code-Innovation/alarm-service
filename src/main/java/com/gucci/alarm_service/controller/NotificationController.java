@@ -91,8 +91,11 @@ public class NotificationController {
 
     // 알림 읽음 처리
     @PatchMapping("/{id}/read")
-    public ApiResponse<Void> markRead(@PathVariable Long id) {
+    public ApiResponse<Void> markRead(Authentication authentication,
+                                      @PathVariable Long id) {
+        Long receiverId = authServiceHelper.getCurrentUserId(authentication);
         notificationWriteService.markRead(id);
+        notificationEventHandler.notifyUnreadStatus(receiverId);
 
         return ApiResponse.success();
     }
@@ -102,6 +105,7 @@ public class NotificationController {
     public ApiResponse<Void> markReadAll(Authentication authentication) {
         Long receiverId = authServiceHelper.getCurrentUserId(authentication);
         notificationWriteService.markReadAll(receiverId);
+        notificationEventHandler.notifyUnreadStatus(receiverId);
 
         return ApiResponse.success();
     }
@@ -111,6 +115,7 @@ public class NotificationController {
     public ApiResponse<Void> deleteAllAlarms(Authentication authentication) {
         Long receiverId = authServiceHelper.getCurrentUserId(authentication);
         notificationWriteService.deleteAll(receiverId);
+        notificationEventHandler.notifyUnreadStatus(receiverId);
 
         return ApiResponse.success();
     }
@@ -121,6 +126,7 @@ public class NotificationController {
                                          @PathVariable Long id) {
         Long userId = authServiceHelper.getCurrentUserId(authentication);
         notificationWriteService.deleteAlarm(userId, id);
+        notificationEventHandler.notifyUnreadStatus(userId);
         return ApiResponse.success();
     }
 
