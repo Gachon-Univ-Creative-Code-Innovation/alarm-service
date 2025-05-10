@@ -32,6 +32,7 @@ public class NotificationEventHandler {
         Notification saved = notificationRepository.save(notification);
         NotificationResponse notificationResponse = NotificationResponse.from(saved);
 
+        // 읽지 않은 알림 여부
         boolean hasUnread = notificationRepository.existsByReceiverIdAndIsReadFalse(message.getReceiverId());
 
         NotificationSseEventDTO responseSSE = NotificationSseEventDTO.from(notificationResponse, hasUnread);
@@ -40,6 +41,17 @@ public class NotificationEventHandler {
     }
 
     public SseEmitter subscribe(Long userId) {
-        return sseEmitterManager.connect(userId);
+        SseEmitter emitter = sseEmitterManager.connect(userId);
+
+        boolean isExistAlarm = notificationRepository.existsByReceiverIdAndIsReadFalse(userId);
+        NotificationSseEventDTO initialExistAlarm = NotificationSseEventDTO.unreadStatus(isExistAlarm);
+        sseEmitterManager.send(userId, initialExistAlarm);
+        return emitter;
+    }
+
+    public void notifyUnreadStatus(Long userId) {
+        boolean isExistAlarm = notificationRepository.existsByReceiverIdAndIsReadFalse(userId);
+        NotificationSseEventDTO hasUnread = NotificationSseEventDTO.unreadStatus(isExistAlarm);
+        sseEmitterManager.send(userId, hasUnread);
     }
 }

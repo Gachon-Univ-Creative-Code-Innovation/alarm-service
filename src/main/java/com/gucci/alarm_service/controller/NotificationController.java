@@ -1,5 +1,6 @@
 package com.gucci.alarm_service.controller;
 
+import com.gucci.alarm_service.auth.JwtProvider;
 import com.gucci.alarm_service.dto.NotificationRequest;
 import com.gucci.alarm_service.dto.NotificationResponse;
 import com.gucci.alarm_service.service.AuthServiceHelper;
@@ -9,6 +10,7 @@ import com.gucci.alarm_service.service.NotificationWriteService;
 import com.gucci.common.response.ApiResponse;
 import com.gucci.common.response.SuccessCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
@@ -23,6 +25,7 @@ public class NotificationController {
     private final NotificationReadService notificationReadService;
     private final NotificationEventHandler notificationEventHandler;
     private final AuthServiceHelper authServiceHelper;
+    private final JwtProvider jwtProvider;
 
     // 유저 정보 추출 테스트
     @GetMapping("/check")
@@ -31,9 +34,10 @@ public class NotificationController {
         return ApiResponse.success("User Id " + userId);
     }
 
-    // 알림 연결(구독) / 테스트용 (SSE 로직에 구현함)
-    @GetMapping("/subscribe/{userId}")
-    public SseEmitter subscribe(@PathVariable Long userId) {
+    // SSE 알림 연결
+    @GetMapping("/subscribe")
+    public SseEmitter subscribe(@RequestParam("token") String token) {
+        Long userId = jwtProvider.getUserId(token);
         return notificationEventHandler.subscribe(userId);
     }
 
@@ -54,28 +58,44 @@ public class NotificationController {
 
     // 전체 알림 조회
     @GetMapping
-    public ApiResponse<List<NotificationResponse>> getAllAlarms(
-            Authentication authentication) {
+    public ApiResponse<Page<NotificationResponse>> getAllAlarms(Authentication authentication,
+                                                                @RequestParam(defaultValue = "0") int page,
+                                                                @RequestParam(defaultValue = "20") int size) {
         Long receiverId = authServiceHelper.getCurrentUserId(authentication);
-        List<NotificationResponse> allAlarms = notificationReadService.getAllAlarms(receiverId);
+        Page<NotificationResponse> allAlarms = notificationReadService.getAllAlarms(receiverId, page, size);
 
         return ApiResponse.success(SuccessCode.DATA_FETCHED, allAlarms);
     }
 
     // 안 읽은 알림 조회
     @GetMapping("/unread")
-    public ApiResponse<List<NotificationResponse>> unreadAlarmList(
-            Authentication authentication) {
+    public ApiResponse<Page<NotificationResponse>> unreadAlarmList(Authentication authentication,
+                                                                   @RequestParam(defaultValue = "0") int page,
+                                                                   @RequestParam(defaultValue = "20") int size) {
         Long receiverId = authServiceHelper.getCurrentUserId(authentication);
-        List<NotificationResponse> unreadAlarms = notificationReadService.getUnreadAlarms(receiverId);
+        Page<NotificationResponse> unreadAlarms = notificationReadService.getUnreadAlarms(receiverId, page, size);
 
         return ApiResponse.success(SuccessCode.DATA_FETCHED, unreadAlarms);
     }
 
+    // 읽은 알림 조회
+    @GetMapping("/read")
+    public ApiResponse<Page<NotificationResponse>> readAlarmList(Authentication authentication,
+                                                                 @RequestParam(defaultValue = "0") int page,
+                                                                 @RequestParam(defaultValue = "20") int size) {
+        Long receiverId = authServiceHelper.getCurrentUserId(authentication);
+        Page<NotificationResponse> readAlarms = notificationReadService.getReadAlarms(receiverId, page, size);
+
+        return ApiResponse.success(SuccessCode.DATA_FETCHED, readAlarms);
+    }
+
     // 알림 읽음 처리
     @PatchMapping("/{id}/read")
-    public ApiResponse<Void> markRead(@PathVariable Long id) {
+    public ApiResponse<Void> markRead(Authentication authentication,
+                                      @PathVariable Long id) {
+        Long receiverId = authServiceHelper.getCurrentUserId(authentication);
         notificationWriteService.markRead(id);
+        notificationEventHandler.notifyUnreadStatus(receiverId);
 
         return ApiResponse.success();
     }
@@ -85,6 +105,7 @@ public class NotificationController {
     public ApiResponse<Void> markReadAll(Authentication authentication) {
         Long receiverId = authServiceHelper.getCurrentUserId(authentication);
         notificationWriteService.markReadAll(receiverId);
+        notificationEventHandler.notifyUnreadStatus(receiverId);
 
         return ApiResponse.success();
     }
@@ -94,7 +115,18 @@ public class NotificationController {
     public ApiResponse<Void> deleteAllAlarms(Authentication authentication) {
         Long receiverId = authServiceHelper.getCurrentUserId(authentication);
         notificationWriteService.deleteAll(receiverId);
+        notificationEventHandler.notifyUnreadStatus(receiverId);
 
+        return ApiResponse.success();
+    }
+
+    // 특정 알림 삭제
+    @DeleteMapping("{id}")
+    public ApiResponse<Void> deleteAlarm(Authentication authentication,
+                                         @PathVariable Long id) {
+        Long userId = authServiceHelper.getCurrentUserId(authentication);
+        notificationWriteService.deleteAlarm(userId, id);
+        notificationEventHandler.notifyUnreadStatus(userId);
         return ApiResponse.success();
     }
 
