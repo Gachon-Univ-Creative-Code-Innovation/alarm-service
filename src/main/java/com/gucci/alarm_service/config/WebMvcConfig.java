@@ -4,7 +4,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-@Configuration
+// API Gateway 에서 CORS 설정 했으므로 필요 없음
+//@Configuration
 public class WebMvcConfig implements WebMvcConfigurer {
 
     @Override
