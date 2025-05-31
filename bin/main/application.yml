@@ -1,9 +1,15 @@
 spring:
-  datasource:
-    url: ${LOCAL_DB_URL}
-    username: ${LOCAL_DB_USERNAME}
-    password: ${LOCAL_DB_PASSWORD}
-
-  jpa:
-    hibernate:
-      ddl-auto: update
+  profiles:
+    active: cloud
+  application:
+    name: alarm-service
+  config:
+    import: "optional:configserver:"
+  cloud:
+    config:
+      uri: http://config-service.config.svc.cluster.local:8888
+      name: alarm-service
+      label: main
+      fail-fast: true
+server:
+  port: 8087
