@@ -1,15 +1,7 @@
 spring:
   profiles:
-    active: cloud
+    active: dev
   application:
     name: alarm-service
   config:
     import: "optional:configserver:"
-  cloud:
-    config:
-      uri: http://config-service.config.svc.cluster.local:8888
-      name: alarm-service
-      label: main
-      fail-fast: true
-server:
-  port: 8087

@@ -1,0 +1,10 @@
+spring:
+  cloud:
+    config:
+      uri: http://config-service.config.svc.cluster.local:8888
+      name: alarm-service
+      label: main
+      fail-fast: true
+
+server:
+  port: 8087
