@@ -1,6 +1,6 @@
 package com.gucci.alarm_service.config;
 
-import com.gucci.alarm_service.dto.NotificationKafkaRequest;
+import com.gucci.alarm_service.kafka.dto.NotificationKafkaRequest;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringSerializer;
 import org.springframework.beans.factory.annotation.Value;

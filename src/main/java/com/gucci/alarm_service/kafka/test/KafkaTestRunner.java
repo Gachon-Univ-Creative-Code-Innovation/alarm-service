@@ -1,11 +1,10 @@
 package com.gucci.alarm_service.kafka.test;
 
 import com.gucci.alarm_service.domain.NotificationType;
-import com.gucci.alarm_service.dto.NotificationKafkaRequest;
+import com.gucci.alarm_service.kafka.dto.NotificationKafkaRequest;
 import com.gucci.alarm_service.kafka.producer.NotificationProducer;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
-import org.springframework.stereotype.Component;
 
 // 카프카 전송 테스트용
 //@Component

@@ -1,4 +1,4 @@
-package com.gucci.alarm_service.dto;
+package com.gucci.alarm_service.kafka.dto;
 
 import lombok.*;
 
