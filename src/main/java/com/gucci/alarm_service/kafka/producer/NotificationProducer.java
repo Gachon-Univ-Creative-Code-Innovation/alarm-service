@@ -1,6 +1,6 @@
 package com.gucci.alarm_service.kafka.producer;
 
-import com.gucci.alarm_service.dto.NotificationKafkaRequest;
+import com.gucci.alarm_service.kafka.dto.NotificationKafkaRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;

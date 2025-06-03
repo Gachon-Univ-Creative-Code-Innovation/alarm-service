@@ -3,7 +3,7 @@ package com.gucci.alarm_service.service;
 import com.gucci.alarm_service.common.SseEmitterManager;
 import com.gucci.alarm_service.domain.Notification;
 import com.gucci.alarm_service.domain.NotificationType;
-import com.gucci.alarm_service.dto.NotificationKafkaRequest;
+import com.gucci.alarm_service.kafka.dto.NotificationKafkaRequest;
 import com.gucci.alarm_service.dto.NotificationResponse;
 import com.gucci.alarm_service.dto.NotificationSseEventDTO;
 import com.gucci.alarm_service.repository.NotificationRepository;
