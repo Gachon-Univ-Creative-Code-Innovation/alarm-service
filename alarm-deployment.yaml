@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: alarm-service
+  namespace: alarm
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: alarm-service
+  template:
+    metadata:
+      labels:
+        app: alarm-service
+    spec:
+      containers:
+        - name: alarm-service
+          image: msj9965/alog-alarm:main
+          ports:
+            - containerPort: 8087
+          env:
+            - name: CLOUD_DB_URL
+              valueFrom:
+                secretKeyRef:
+                  name: alarm-secret
+                  key: CLOUD_DB_URL
+            - name: CLOUD_DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: alarm-secret
+                  key: CLOUD_DB_USERNAME
+            - name: CLOUD_DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: alarm-secret
+                  key: CLOUD_DB_PASSWORD
+            - name: JWT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: alarm-secret
+                  key: JWT_SECRET
+            - name: SPRING_PROFILES_ACTIVE
+              value: cloud
+          readinessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8087
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /actuator/health
+              port: 8087
+            initialDelaySeconds: 20
+            periodSeconds: 15
