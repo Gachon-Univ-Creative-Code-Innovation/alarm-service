@@ -1,6 +1,6 @@
 spring:
   profiles:
-    active: dev
+    active: cloud
   application:
     name: alarm-service
   config:
