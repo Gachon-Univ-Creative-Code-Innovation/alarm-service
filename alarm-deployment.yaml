@@ -15,10 +15,13 @@ spec:
     spec:
       containers:
         - name: alarm-service
+          # Jenkins CD 파이프라인에서 이 태그로 업데이트됨
           image: msj9965/alog-alarm:main
           ports:
-            - containerPort: 8087
+            - containerPort: 8087 # Alarm 서비스 포트
           env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: cloud
             - name: CLOUD_DB_URL
               valueFrom:
                 secretKeyRef:
@@ -39,8 +42,18 @@ spec:
                 secretKeyRef:
                   name: alarm-secret
                   key: JWT_SECRET
-            - name: SPRING_PROFILES_ACTIVE
-              value: cloud
+
+            # --- 이 부분을 추가하여 Feign Client 문제를 해결합니다 ---
+            # alarm-service 애플리케이션이 user-service에 접속하기 위한 URL을 주입합니다.
+            # 이 환경 변수는 application.yml의 ${user-service.url} 플레이스홀더에 사용됩니다.
+            # 'alarm-secret'에 'FEIGN_USER_SERVICE_URL' 키와 해당 값이 있어야 합니다.
+            # 예: FEIGN_USER_SERVICE_URL: http://user-service.user.svc.cluster.local:8080
+            - name: user-service.url # 애플리케이션이 사용하는 플레이스홀더 이름과 일치시킵니다.
+              valueFrom:
+                secretKeyRef:
+                  name: alarm-secret
+                  key: FEIGN_USER_SERVICE_URL
+
           readinessProbe:
             httpGet:
               path: /actuator/health
