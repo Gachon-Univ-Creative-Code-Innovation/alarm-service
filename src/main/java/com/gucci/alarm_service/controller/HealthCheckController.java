@@ -22,4 +22,10 @@ public class HealthCheckController {
                                 + environment.getProperty("local.server.port")
                 );
     }
+
+    @GetMapping("/test")
+    public  String test(){
+        return "cicd test";
+
+    }
 }
